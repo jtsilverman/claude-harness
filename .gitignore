@@ -1,0 +1,17 @@
+# Runtime state the harness generates locally (never part of the published source)
+.DS_Store
+__pycache__/
+*.pyc
+*.bak
+*.bak-*
+node_modules/
+
+# Memory index DBs (regenerable)
+memory-index.db
+scripts/memory-index.db
+
+# Worktrees and cockpit run-state
+.worktrees/
+.cockpit-sidecar.json
+.cockpit-sidecar.json.tmp.*
+.worker-artifacts/
