@@ -1,6 +1,6 @@
 # Simplicity
 
-The standing principle: the machine and the artifacts agents produce stay un-braided. Auto-inherited by every producing agent type via `rules/`; enforced on output by the review-contract SLOP lens. One definition, one procedure, no per-prompt copying.
+The standing principle: the machine and the artifacts produced stay un-braided. Auto-inherited everywhere via `rules/`; enforced on output by the `reviewer`'s simplicity / over-engineering lens. One definition, one procedure, no per-prompt copying.
 
 ## What simple means (the validated definition)
 

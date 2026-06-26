@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Use when a plan, spec, or design needs stress-testing through intensive questioning, when the operator says "grill me", and by default during spec-collaboration interrogation. Walks the design's decision tree one question at a time, each with a recommended answer.
+description: Use when a plan, spec, or design needs stress-testing through intensive questioning, when the user says "grill me", and by default during the spec skill's pressure-test step. Walks the design's decision tree one question at a time, each with a recommended answer.
 ---
 
 # Grill Me

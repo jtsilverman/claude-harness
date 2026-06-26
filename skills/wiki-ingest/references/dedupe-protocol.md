@@ -12,7 +12,7 @@ Qualitative judgment, not a token-count or filename diff -- same rule as the aut
 
 ## On overlap detected
 
-Prompt the operator with one of three actions:
+Prompt the user with one of three actions:
 
 > I see overlap with [existing-file] (description: \<one-line\>, url: \<url\>).
 > [One-sentence judgment of overlap shape — what's the same, what's different.]
@@ -29,4 +29,4 @@ Proceed silently to Step 4. Don't surface "no overlap found" -- only surface whe
 
 ## Gate purpose
 
-This is a mandatory inline pause; it's the only judgment call between propose and write for source captures. (Wiki-page edits in Step 3 already had the operator's approval; this gate exists specifically for the new auto-capture source-write path.)
+This is a mandatory inline pause; it's the only judgment call between propose and write for source captures. (Wiki-page edits in Step 3 already had the user's approval; this gate exists specifically for the new auto-capture source-write path.)

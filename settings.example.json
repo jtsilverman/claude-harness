@@ -1,0 +1,43 @@
+{
+  "//": "Wiring only. Copy the hooks/statusLine blocks into your ~/.claude/settings.json (merge with your existing permissions/env/model settings; do not overwrite them). Paths use $HOME/.claude -- adjust if your config lives elsewhere.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "bash $HOME/.claude/hooks/destructive-confirm.sh" },
+          { "type": "command", "command": "bash $HOME/.claude/hooks/red-commit-gate.sh" },
+          { "type": "command", "command": "bash $HOME/.claude/hooks/test-pass-gate.sh" }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          { "type": "command", "command": "bash $HOME/.claude/hooks/session-start.sh" }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "clear|logout",
+        "hooks": [
+          { "type": "command", "command": "bash $HOME/.claude/hooks/session-archive.sh", "async": true }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "bash $HOME/.claude/hooks/caveman-terse.sh", "statusMessage": "caveman" }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "$HOME/.claude/statusline/statusline.sh",
+    "padding": 1
+  }
+}

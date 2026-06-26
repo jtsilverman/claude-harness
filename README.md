@@ -1,87 +1,128 @@
 # Claude Harness
 
-A personal operating system for [Claude Code](https://claude.com/claude-code): a set of
-always-loaded rules, role-scoped playbooks, skills, subagents, and multi-agent workflows
-that turn a single Claude Code session into a disciplined build org. It encodes one idea:
-a long-running orchestrator that never writes code, cheap workers that each build one
-chunk under test-first discipline, and a slow self-improvement loop that makes the system
-leaner every time it ships.
+A lean operating system for [Claude Code](https://claude.com/claude-code): an always-loaded
+kernel, a small set of rules, a handful of skills and subagents, and three enforcement hooks
+that turn a single Claude Code session into a disciplined, test-first build loop.
 
-This is the harness extracted from my own `~/.claude`, with personal data removed (see
-[What was redacted](#what-was-redacted)). It runs out of the box and is meant to be read,
-forked, and adapted.
+It encodes one idea: **you and one session.** You set direction and own the merge gate. The
+session does the work, under spec-first discipline, and spawns a subagent only for a specific
+bounded job (orientation, a review, a transcript distillation, a live drive-test) that returns
+a result. No orchestrator persona, no role tiers, no worker fleet.
 
-## The frame: four roles, three loops
+This is the harness extracted from a real working `~/.claude`, with personal data removed
+(see [What was redacted](#what-was-redacted)). It is meant to be read, forked, and adapted.
 
-**Four roles.**
+> This is a redesign. An earlier version of this harness modeled a four-role, three-loop
+> "build org" (CEO / COO / workers / self-improvement loop). That machinery was cut. The
+> system below is the lean replacement: one session, two loops, three hooks.
 
-- **CEO** (you): vision in, verdict out. Owns the spec and the merge-to-main gate. Stays
-  out of operations.
-- **COO** (the long-running Opus session): orchestrates all operations and is the sole
-  writer of shared state (the board, memory, the wiki). Never builds.
-- **Workers** (tier-dialed subagents): build one chunk each, in their own git worktree.
-  Model and reasoning effort are set by the chunk's risk tier.
-- **Fable** (the sharpener): the strongest model, used sparingly to rewrite docs, prompts,
-  and skills.
+## The frame: you + one session
 
-**Three loops.**
+- **You** set the vision and own the merge-to-main gate. Nothing lands on `main` without your go.
+- **One session** does the work: orients, writes the spec, builds test-first, reviews, and
+  reports. It inherits the kernel and the rules on every turn.
+- **Subagents** are spawned only for a bounded job and return a compact result. They never
+  coordinate laterally and never own the merge.
 
-- **Build loop** (per chunk): recall -> kickoff -> RED -> GREEN -> REFACTOR -> review ->
-  commit. A worker runs it; a fresh-context verification net judges the result; the COO
-  gates the merge.
-- **Sharpen loop**: capture -> memory -> recall during a build, plus grader -> redesigner
-  at ship. Each run makes the system leaner, not bigger.
-- **Meta loop**: Fable over COO sessions. The self-improvement layer.
+Scope is split in two. **Global** (`~/.claude`) is how you work everywhere: this repo. **Per
+project** is that repo's own `CLAUDE.md` (lean rules plus its test command), its `specs/`, and
+its notes. All skills, agents, and hooks live globally and inherit down.
 
-## How it fits together
+## Two loops
 
-The base layer (`CLAUDE.md` plus `rules/`) is auto-loaded into every session and every
-subagent. Role-specific playbooks (`coo/`, `disciplines/`) are injected only into the
-agent type that needs them, so a worker never pays for the COO's playbook and vice versa.
-Skills are invoked on demand. The per-chunk verification net (reviewer + an independent
-judge + a fixer) runs each chunk's diff through adversarial review before the COO will
-merge it.
+### Build loop
 
-## Layout
+- **Small or mechanical** (config, doc, rename, one-liner): do it directly on a branch and
+  eyeball the diff. No subagent, no ceremony.
+- **Non-trivial** (changes behavior, spans files, new files): enter plan mode, then run the
+  gates:
+  1. **Orient.** An `Explore` subagent digs the relevant code and notes and returns a compact,
+     grounded map.
+  2. **Spec** (the `spec` skill). One paragraph: intent, acceptance criteria, non-goals,
+     orientation findings, and a commit-sized decomposition.
+  3. **Creativity beat.** Name one or two alternative approaches plus the 10x-vs-asked version,
+     pick one with reasoning, and name the simplest form that works.
+  4. **Pressure-test.** `grill-me` walks the design's decision tree; the `reviewer` checks the
+     spec for completeness and grounding. You sign off intent, acceptance, and non-goals only.
+  5. **Build** (the `build` skill). Orient, then RED (author a failing test, watch it fail,
+     commit it), GREEN (the minimum to pass), REFACTOR (delete what you obsolete), a verify
+     ladder, a gated live-verify, an anti-slop self-check, and commit.
+  6. **Review.** One fresh-context `reviewer` subagent reads the diff, truth-framed ("no issue
+     is a valid finding"). You adjudicate each finding by reproducing it.
+  7. **You merge.** The spec is the live progress record. One task per branch, `feat/<name>`
+     from `main`.
 
-| Path | What it holds |
-| --- | --- |
-| `CLAUDE.md` | The always-loaded kernel: the frame, the universal hard rules, the scope model. |
-| `rules/` | Auto-inherited rules (git discipline, the simplicity definition, taste). |
-| `disciplines/` | Role kernels injected at dispatch (worker discipline, the review contract). |
-| `coo/` | The COO-only playbooks (the SOP, communication discipline, the reference manual). |
-| `skills/` | 23 invocable skills (spec collaboration, TDD red/green, recall, ship, grader, and more). |
-| `agents/` | 15 subagent definitions (build workers, reviewers, the meritocracy judge, grader stages). |
-| `workflows/` | Deterministic multi-agent orchestration scripts plus their test suites. |
-| `scripts/` | Supporting tooling (memory indexing, session archiving, corpus extraction, tests). |
-| `hooks/` | Session-start injection, the COO lane guard, session archiving, terse-mode. |
-| `docs/` | Reference material and templates. |
+### Learn loop
 
-## Using it
+`/learn` distills a session. A single `learn-evaluator` subagent (fresh context) reads the
+transcript plus the current `MEMORY.md` and returns two payloads: a compact state summary
+(what happened, where it ended, what is next) and up to five durable lessons, each classified
+by scope (global goes to `MEMORY.md`; project goes to that project's `CLAUDE.md`) and type
+(a gap in the machine vs a one-off instance). The main session is the single writer: it
+merge-prunes each lesson into the target under a hard line cap and shows you the diff. The
+evaluator writes nothing itself. `MEMORY.md` is `@`-imported into the kernel, so the lessons
+are always in context with no recall step to skip.
 
-1. Read `CLAUDE.md` first. It is the entry point and points at everything else.
-2. Copy the pieces you want into your own `~/.claude/` (global) or a project's
-   `.claude/` (workspace). Scope is a parameter, not a second copy of the machinery.
-3. Wire the hooks in `hooks/` through your `settings.json` (the `SessionStart` hook
-   injects the COO playbooks; the lane guard enforces the orchestrate-don't-build rule).
-   A `settings.json` is intentionally not shipped, since it carries machine-specific
-   paths; wire the hooks to your own.
+The loop also fires from the `SessionStart` hook on the previous session's transcript when that
+session did substantial work, which doubles as cross-session continuity.
 
-The runtime state the harness expects (the board, the memory store, the voice corpus,
-the reader model) ships empty. It accretes from your own sessions as you use it.
+## The three hooks
+
+All three are `PreToolUse(Bash)` hooks. They fail open: any parse or git error exits 0 with no
+output, so a broken hook never blocks you.
+
+| Hook | Fires on | Decision |
+|------|----------|----------|
+| `destructive-confirm.sh` | a Bash command matching the destructive-ops list (`git reset --hard`, `push --force`, `clean -f`, `branch -D`, `rm -rf`, ...) | **ask** (deliberate confirm, not a hard block) |
+| `red-commit-gate.sh` | a `git commit` that stages the deletion or rename-away of a committed test file | **ask** (confirm the test is genuinely obsolete, not silently gutted) |
+| `test-pass-gate.sh` | a `git commit` that stages implementation code, when the project `CLAUDE.md` declares `` Test command: `<cmd>` `` | **deny** if that command fails (RED test-only commits are exempt) |
+
+`test-pass-gate` runs the declared command via `eval`, so treat a repo's `CLAUDE.md` as trusted
+input: do not commit inside an unvetted clone whose `Test command:` you have not read.
+
+## Repo layout
+
+```
+CLAUDE.md              the always-loaded kernel: the frame, hard rules, both loops, pointers
+MEMORY.md              durable distilled lessons, @-imported into the kernel
+rules/                 auto-loaded rules: communication, simplicity, git-discipline, taste
+agents/                bounded-job subagents: reviewer, learn-evaluator
+skills/                build, spec, verify, grill-me, learn, diagram-system, systematic-debugging,
+                       wiki-*, writing-skills, ...
+hooks/                 the three PreToolUse gates (+ tests), session-start, session-archive,
+                       caveman-terse
+scripts/ statusline/   supporting tooling
+settings.example.json  hook + statusline wiring to merge into your settings.json
+```
+
+## Install
+
+1. Back up your existing `~/.claude` (at minimum `settings.json`).
+2. Copy the directories you want (`rules/`, `skills/`, `agents/`, `hooks/`, `statusline/`,
+   and `CLAUDE.md` / `MEMORY.md`) into your `~/.claude`. The kernel and rules auto-load; skills
+   and agents are auto-discovered.
+3. Merge the `hooks` and `statusLine` blocks from `settings.example.json` into your
+   `~/.claude/settings.json`. Do not overwrite your existing permissions, env, or model
+   settings. Hook changes take effect at the next session start.
+4. To arm `test-pass-gate` in a project, add a line to that project's `CLAUDE.md`:
+   `` Test command: `<your test command>` ``.
+
+Read `CLAUDE.md` first. It is short and it is the whole system in one file.
 
 ## What was redacted
 
 This is a real working system, not a sanitized demo, so a few things were stripped before
 publishing:
 
-- Personal identity, contact details, and the operator's voice corpus and reader model
-  (shipped as empty templates).
-- Private infrastructure (host aliases, IPs, machine topology).
-- Session transcripts, work-in-progress specs, and the populated memory store.
+- Personal identity and contact details (the operator is referred to generically as "the user").
+- `MEMORY.md` keeps the durable lessons (operating discipline plus a general-purpose
+  engineering-pattern library: testing, language and runtime gotchas, state and persistence,
+  LLM and API patterns) with the operator's identity generified out.
+- Work-in-progress specs, session transcripts and reviews, private project grounding docs, the
+  local plugins tree, and the live `settings.json` (replaced by `settings.example.json`).
 
-Everything that defines how the system *works* is here and unmodified.
+Everything that defines how the system works is here.
 
 ## License
 
-MIT.
+MIT. See [LICENSE](LICENSE).

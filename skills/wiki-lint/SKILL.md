@@ -1,13 +1,13 @@
 ---
 name: wiki-lint
-description: Use when the operator invokes /wiki-lint or asks for a vault health check. Reports contradictions, orphan pages, broken links, stale claims, and gaps. Does NOT auto-fix.
+description: Use when the user invokes /wiki-lint or asks for a vault health check. Reports contradictions, orphan pages, broken links, stale claims, and gaps. Does NOT auto-fix.
 disable-model-invocation: false
 allowed-tools: Read, Glob, Grep, Bash
 ---
 
 # Wiki Lint
 
-Health-check the operator's wiki at `~/Documents/brain/`. Read `~/Documents/brain/SCHEMA.md` and `~/Documents/brain/index.md` before running. **Do NOT modify any files** — lint reports, the operator decides (see `CLAUDE.md` § Hard don'ts).
+Health-check the user's wiki at `~/Documents/brain/`. Read `~/Documents/brain/SCHEMA.md` and `~/Documents/brain/index.md` before running. **Do NOT modify any files** — lint reports, the user decides (see `CLAUDE.md` § Hard don'ts).
 
 ## Checks (run in order)
 
@@ -19,10 +19,10 @@ False-positive filters (apply before reporting):
 - **Skip `![[X]]` embed syntax.** Match `(?<!!)\[\[...\]\]` only.
 - **Skip fenced code blocks.** Strip ```` ``` ... ``` ```` before scanning (catches mermaid node-label noise).
 - **Skip inline backtick code spans.** Strip `` `...` `` before scanning (catches syntax-example placeholders).
-- **Skip skill/memory-pattern namespace.** Wiki-links to skill names (`[[capture-learning]]`, `[[recall]]`, etc.) resolve to `~/.claude/skills/<name>/SKILL.md`; memory-pattern slugs resolve to `~/.claude/projects/.../memory/patterns/<slug>.md`. Report as cross-substrate refs, not broken.
+- **Skip skill namespace.** Wiki-links to skill names (`[[build]]`, `[[wiki-query]]`, etc.) resolve to `~/.claude/skills/<name>/SKILL.md`. Report as cross-substrate refs, not broken.
 - **Skip rule-file refs.** `[[git-discipline]]`, `[[SOP]]`, etc. resolve to `~/.claude/rules/<name>.md`. Same handling.
-- **Skip spec-archive namespace.** Build the spec slug namespace once per scan from (1) `~/.claude/specs/current.md` (slug after `# Spec: `) and (2) `~/.claude/specs/archive/*.md` filenames (strip `-YYYYMMDD.md`). Categorize matches as cross-substrate, not broken. Reference: `scripts/wiki_lint.sh` — source and call `build_spec_slug_namespace`.
-- **Folder-target mismatches are real but distinct.** `[[Agnes]]` etc. where the target is a folder, not a file. Report in a separate "folder-target mismatches" subsection — fix via redirect-shim or rewrite to `[[projects/<x>/index|<X>]]`.
+- **Skip spec namespace.** Build the spec slug namespace once per scan from the active spec filenames in `~/.claude/specs/*.md` plus `~/.claude/specs/archive/*.md` (strip any `-YYYYMMDD.md` date suffix). Categorize matches as cross-substrate, not broken.
+- **Folder-target mismatches are real but distinct.** `[[ProjectName]]` etc. where the target is a folder, not a file. Report in a separate "folder-target mismatches" subsection — fix via redirect-shim or rewrite to `[[projects/<x>/index|<X>]]`.
 
 **2. Orphan pages (no inbound links)**
 - For each wiki page, check if any other wiki page links to it.
@@ -40,7 +40,7 @@ Carve-outs:
 - **Convention/utility pages** (`type: convention`): skip standard checks.
 
 **4. Contradictions across pages**
-- Sample 5-10 pages or focus on a subset the operator names.
+- Sample 5-10 pages or focus on a subset the user names.
 - Report each with both quotes and the conflict; suggest resolution if obvious.
 
 **5. Concepts mentioned without dedicated pages**
@@ -57,15 +57,15 @@ Carve-outs:
 
 **8. Supersede-orphans**
 - Files in `wiki/superseded/` should be referenced by `supersedes: <slug>` on a successor page.
-- Reference: `scripts/wiki_lint.sh` — source and call `check_supersede_orphans` (emits `ORPHAN: <path> (slug: <slug>)` per orphan). Use `find` not glob; empty `superseded/` is fine.
+- `find ~/Documents/brain/wiki/superseded -type f -name '*.md'` (use `find`, not glob; empty `superseded/` is fine). For each, take its slug and `rg "supersedes:.*<slug>"` across the vault; no hit -> emit `ORPHAN: <path> (slug: <slug>)`.
 
 **9. Empty-bucket signal**
 - Hot buckets: `wiki/daily/`, `wiki/domains/`, `wiki/entities/`, `wiki/concepts/`, `sources/inbox/`, `sources/clippings/`, `sources/tweets/`, `sources/repos/`.
-- Reference: `scripts/wiki_lint.sh` — source and call `check_empty_buckets` (emits `EMPTY: <bucket-relpath>`). Surface as informational, not error.
+- For each, `find <bucket> -maxdepth 1 -type f -name '*.md'`; zero results -> emit `EMPTY: <bucket-relpath>`. Informational, not error.
 
 **10. Stale projects**
-- `wiki/projects/<project>/index.md` pages with mtime > 30 days.
-- Reference: `scripts/wiki_lint.sh` — source and call `check_stale_projects`. Cross-reference active-project list in `~/Documents/brain/index.md`; only active projects with stale pages are real findings.
+- `wiki/projects/<project>/index.md` pages with mtime > 30 days: `find ~/Documents/brain/wiki/projects -name index.md -mtime +30`.
+- Cross-reference the active-project list in `~/Documents/brain/index.md`; only active projects with stale pages are real findings.
 
 ## Output format
 

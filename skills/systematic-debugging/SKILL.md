@@ -35,10 +35,10 @@ Complete each phase before moving to the next.
 
 ### Phase 4: Implementation
 
-1. **Create a failing test case** first -- simplest possible reproduction. Use `tdd-red` then `tdd-green` for the mechanics.
+1. **Create a failing test case** first -- simplest possible reproduction. Use the `build` skill's RED then GREEN gates for the mechanics.
 2. **Implement a single fix** — address the root cause only. No "while I'm here" additions.
 3. **Verify**: test passes, no regressions, issue resolved.
-4. **If fix doesn't work**: STOP, return to Phase 1 with new information. After 2 failed attempts invoke `reset-or-decompose` (the 2-failed-attempts reset rule). No third patch.
+4. **If fix doesn't work**: STOP, return to Phase 1 with new information. After 2 failed attempts, stop and surface (the `build` skill's two-failed-attempts rule): the fix is upstream (scope, approach, understanding). No third patch.
 
 ## Red Flags — STOP and Return to Phase 1
 

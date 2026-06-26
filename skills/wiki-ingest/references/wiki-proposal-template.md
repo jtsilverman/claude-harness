@@ -8,11 +8,11 @@ Before proposing any NEW wiki page, run:
 rg -li "<topic keywords>" ~/Documents/brain/wiki/ -t md
 ```
 
-If matches exist, prefer UPDATE over CREATE. Surface any matches in the proposal so the operator sees what you found. This is mandatory -- `rg` cite before CREATE.
+If matches exist, prefer UPDATE over CREATE. Surface any matches in the proposal so the user sees what you found. This is mandatory -- `rg` cite before CREATE.
 
 ## Proposal format
 
-Show the operator this structured plan BEFORE writing anything:
+Show the user this structured plan BEFORE writing anything:
 
 ```
 Wiki updates proposal:
@@ -34,4 +34,4 @@ Index updates:
 - Update [[updated-page]] description
 ```
 
-Wait for the operator's OK or revisions before proceeding to Step 3.5.
+Wait for the user's OK or revisions before proceeding to Step 3.5.

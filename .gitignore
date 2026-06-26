@@ -6,12 +6,5 @@ __pycache__/
 *.bak-*
 node_modules/
 
-# Memory index DBs (regenerable)
-memory-index.db
-scripts/memory-index.db
-
-# Worktrees and cockpit run-state
+# Worktrees and local run-state
 .worktrees/
-.cockpit-sidecar.json
-.cockpit-sidecar.json.tmp.*
-.worker-artifacts/

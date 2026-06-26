@@ -1,6 +1,6 @@
 ---
 name: diagram-system
-description: Use when the operator asks for a diagram, ERD, swim lane, system view, flowchart, sequence, or state machine — for either a new system from scratch or to update an existing one. Produces hierarchical, sign-off-gated Mermaid diagrams that fit into each other. Polished Claude Design renders are on-demand only, when external sharing is needed.
+description: Use when the user asks for a diagram, ERD, swim lane, system view, flowchart, sequence, or state machine — for either a new system from scratch or to update an existing one. Produces hierarchical, sign-off-gated Mermaid diagrams that fit into each other. Polished Claude Design renders are on-demand only, when external sharing is needed.
 ---
 
 # Diagram System
@@ -9,14 +9,14 @@ Diagrams are clarity tools, readable in ~30 seconds. Layer hierarchy: L1 Context
 
 ## When it fires
 
-- the operator says "draw X", "diagram Y", "ERD for Z", "swim lane for W", "show me how V works", "I want a visual."
+- The user says "draw X", "diagram Y", "ERD for Z", "swim lane for W", "show me how V works", "I want a visual."
 - Phase 2 (Specify): greenfield new system triggers L1 + L2 at spec time. Non-greenfield: textual structural summary only; full diagrams come from the chunk-end diagram auto-refresh.
 - Chunk-checkpoint: chunk changes a diagrammed flow → **auto-refresh path** (see § Auto-refresh).
-- Manual reorientation: any time the operator feels lost.
+- Manual reorientation: any time the user feels lost.
 
 ## Step 1: Determine intent and starting state
 
-Ask the operator:
+Ask the user:
 
 1. **Which system?**
 2. **New from scratch, or modify an existing diagram?** Check `~/Documents/brain/wiki/projects/<project>/` first; surface anything that exists before assuming greenfield.
@@ -49,7 +49,7 @@ Before any Mermaid, produce a bullet list:
 - **Boundary** (for L2/L3: which parent box is being expanded; what crosses that boundary).
 - **Test surface** (which behaviors are guarded by which test IDs; populate from existing tests).
 
-Show to the operator. He confirms or corrects. **Do not draw yet.** Catching wrong assumptions in text is faster. Iterate on the summary to confirmation.
+Show to the user. He confirms or corrects. **Do not draw yet.** Catching wrong assumptions in text is faster. Iterate on the summary to confirmation.
 
 ## Step 4: Generate the diagram
 
@@ -59,9 +59,9 @@ Start from the per-type recipe in `~/Documents/brain/wiki/diagram-recipes.md` §
 
 ## Step 5: Bidirectional review
 
-Show the operator the diagram. He gives **anchored feedback** pointing at specific elements ("the edge from A to B should not exist", "split this box into two"). Generic feedback ("this is wrong") gets push-back: ask for an anchored point.
+Show the user the diagram. He gives **anchored feedback** pointing at specific elements ("the edge from A to B should not exist", "split this box into two"). Generic feedback ("this is wrong") gets push-back: ask for an anchored point.
 
-Iterate until the operator is ready to lock. Before lock, run the **challenge prompt**:
+Iterate until the user is ready to lock. Before lock, run the **challenge prompt**:
 
 > Name three ways this diagram could be wrong, incomplete, or misleading.
 
@@ -69,7 +69,7 @@ Address each item or accept the risk explicitly.
 
 ## Step 6: Sign-off
 
-Lock signal must be explicit: the operator says "lock." Do not infer from "looks good" or silence.
+Lock signal must be explicit: The user says "lock." Do not infer from "looks good" or silence.
 
 On lock:
 - Set frontmatter `status: as-built` (existing system) or `status: proposed` (greenfield ahead of implementation).
@@ -95,9 +95,9 @@ When modifying an existing diagram, check both directions (parent and children).
 
 ## Step 9: Hand-off
 
-**From `spec-collaboration` (Phase 2 lock):** return the diagram path so the spec can reference it.
+**From the `spec` skill:** return the diagram path so the spec can reference it.
 
-**From the chunk-end auto-refresh path:** return the refreshed diagram path for the review set. If boundaries changed, auto-refresh parent diagrams too and return all touched paths.
+**From the milestone/ship wiki-refresh path:** return the refreshed diagram path for the review set. If boundaries changed, refresh parent diagrams too and return all touched paths.
 
 ## Auto-refresh (chunk-end upkeep path)
 

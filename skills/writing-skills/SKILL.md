@@ -5,7 +5,7 @@ description: Use when creating new skills, editing existing skills, or verifying
 
 # Writing Skills
 
-Writing skills is TDD applied to process documentation. Skills live in `~/.claude/skills/`. Full TDD rationale: `disciplines/worker-discipline.md` (RED -> GREEN -> REFACTOR).
+Writing skills is TDD applied to process documentation. Skills live in `~/.claude/skills/`. Full TDD rationale: the `build` skill (RED -> GREEN -> REFACTOR).
 
 **Iron Law: NO SKILL WITHOUT A FAILING TEST FIRST.** This applies to new skills AND edits. Write skill before testing? Delete it and start over. No exceptions.
 
@@ -16,7 +16,7 @@ A **skill** is a reusable reference guide for proven techniques, patterns, or to
 **Create when:** technique wasn't obvious, applies broadly across projects, others benefit.
 **Don't create for:** one-offs, standard practices documented elsewhere, project-specific conventions (put those in CLAUDE.md), mechanical constraints (if regex/validation can enforce it, automate -- save skills for judgment calls).
 
-**Self-carry convention (worker agents):** a worker agent (`agents/*.md`) that produces CEO-facing output must self-carry its comm/altitude guidance inline in its own prompt, because `communication-discipline` is off the worker autoload path -- do not rely on it autoloading.
+**Self-carry convention (subagents):** a subagent (`agents/*.md`) that produces the user-facing output must self-carry its comm/altitude guidance inline in its own prompt; do not rely on `rules/communication.md` autoloading into the subagent context.
 
 ## Skill Types
 
@@ -92,7 +92,7 @@ description: Use when executing implementation plans with independent tasks in t
 **Cross-referencing other skills:**
 ```markdown
 # GOOD: explicit requirement
-**REQUIRED:** Use `tdd-red` then `tdd-green`
+**REQUIRED:** Use the `build` skill's RED then GREEN gates
 
 # BAD: force-load syntax burns context before you need it
 @skills/test-driven-development/SKILL.md
