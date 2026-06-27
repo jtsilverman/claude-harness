@@ -1,6 +1,6 @@
-# Claude Harness
+# Rock (claude-harness)
 
-A lean operating system for [Claude Code](https://claude.com/claude-code): an always-loaded
+Rock is a lean operating system for [Claude Code](https://claude.com/claude-code): an always-loaded
 kernel, a small set of rules, a handful of skills and subagents, and three enforcement hooks
 that turn a single Claude Code session into a disciplined, test-first build loop.
 
@@ -11,10 +11,6 @@ a result. No orchestrator persona, no role tiers, no worker fleet.
 
 This is the harness extracted from a real working `~/.claude`, with personal data removed
 (see [What was redacted](#what-was-redacted)). It is meant to be read, forked, and adapted.
-
-> This is a redesign. An earlier version of this harness modeled a four-role, three-loop
-> "build org" (CEO / COO / workers / self-improvement loop). That machinery was cut. The
-> system below is the lean replacement: one session, two loops, three hooks.
 
 ## The frame: you + one session
 
